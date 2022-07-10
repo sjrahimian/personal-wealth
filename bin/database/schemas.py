@@ -7,8 +7,8 @@ import sqlite3
     """Contains the table schemas to build the databases when there are none.
         
         Two types of files can be built with these schemas:
-            - 'accounts' database contains the various user's wealth accounts. 
-            - 'wealth' database contains the wealth data (such as income, expenditures, etc.).
+            - 'management' database contains the various user's workspaces. 
+            - 'workspace' database contains the wealth data (such as income, expenditures, etc.).
 
     """
 
