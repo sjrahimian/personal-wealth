@@ -12,33 +12,36 @@ import sqlite3
 
     """
 
-class AccountTable():
-    tbl_account = """ 
-        CREATE TABLE "Account" (
-            "uuid"	INTEGER NOT NULL UNIQUE,
-            "account_name"	INTEGER NOT NULL UNIQUE,
+class Management():
+    Management = """ 
+        CREATE TABLE "Management" (
+            "uwsid"	TEXT NOT NULL UNIQUE,
+            "workspace_name"	TEXT NOT NULL UNIQUE,
             "first_name"	INTEGER NOT NULL,
             "last_name"	TEXT NOT NULL,
-            PRIMARY KEY("uuid")
+            PRIMARY KEY("uwsid")
         ) WITHOUT ROWID
     """
 
+    all_tables = { management }
+
     def __init__(self):
-        pass
+        return all_tables
 
 
-class WealthTables():
-    tbl_setting = """
+class WorkSpace():
+    setting = """
         CREATE TABLE "Setting" (
-            "uuid"	TEXT NOT NULL UNIQUE,
+            "uwsid"	TEXT NOT NULL UNIQUE,
+            "workspace_name"	TEXT NOT NULL UNIQUE,
             "country"	TEXT NOT NULL DEFAULT 'Canada',
             "currency"	TEXT NOT NULL DEFAULT 'CAD',
             "fiscal_start"	TEXT NOT NULL DEFAULT '01-01',
-            PRIMARY KEY("uuid")
+            PRIMARY KEY("uwsid")
         ) WITHOUT ROWID
     """
 
-    tbl_income = """
+    income = """
         CREATE TABLE "Income" (
             "uiid"	INTEGER NOT NULL UNIQUE,
             "amount"	NUMERIC NOT NULL,
@@ -48,8 +51,10 @@ class WealthTables():
             "category"	BLOB NOT NULL,
             "datetime"	INTEGER NOT NULL,
             PRIMARY KEY("uiid" AUTOINCREMENT)
-        )
+        ) WITHOUT ROWID
     """
 
+    all_tables = { setting, income }
+
     def __init__(self):
-        pass
+        return all_tables
