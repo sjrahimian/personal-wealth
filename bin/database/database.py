@@ -24,7 +24,7 @@ import schemas
 # user-defined database exceptions
 class DatabaseError(Exception):
 """Base class for database exceptions"""
-pass
+    pass
 
 class DatabaseTableInsertError(DatabaseError):
     """Raised when the not able to insert into table"""
