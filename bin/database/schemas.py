@@ -4,16 +4,16 @@
 import sys
 import sqlite3
 
-    """Contains the table schemas to build the databases when there are none.
-        
-        Two types of files can be built with these schemas:
-            - 'management' database contains the various user's workspaces. 
-            - 'workspace' database contains the wealth data (such as income, expenditures, etc.).
+"""Contains the table schemas to build the databases when there are none.
+    
+    Two types of files can be built with these schemas:
+        - 'management' database contains the various user's workspaces. 
+        - 'workspace' database contains the wealth data (such as income, expenditures, etc.).
 
-    """
+"""
 
 class Management():
-    Management = """ 
+    management = """ 
         CREATE TABLE "management" (
             "workspace_id"	TEXT NOT NULL UNIQUE,
             "first_name"	TEXT NOT NULL,

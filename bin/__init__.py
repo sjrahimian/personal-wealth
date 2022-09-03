@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-# __init__.py (bin)
+# __init__.py   

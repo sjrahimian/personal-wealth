@@ -4,12 +4,11 @@
 # Built-in libraries
 from pathlib import Path
 import sqlite3
-from sqlite3 import Error
 import sys
 
 
 # Custom libraries
-import schemas
+from bin.database import schemas
 
 """ This will contain all the save/load/query methods for the different databases.
 
@@ -23,14 +22,15 @@ import schemas
 
 # user-defined database exceptions
 class DatabaseError(Exception):
-"""Base class for database exceptions"""
+    """Base class for database exceptions"""
     pass
 
 class DatabaseTableInsertError(DatabaseError):
     """Raised when the not able to insert into table"""
     pass
 
-class Database():
+# Parent database class
+class _Database():
     """ Interface to SQLite3 database; defines basic methods needed. """
 
     def __init__(self, path="bin/resources/", fn="database.db"):
@@ -40,10 +40,9 @@ class Database():
             path (str, optional): Database path. Defaults to "bin/resources/".
             fn (str, optional): Database filename. Defaults to "database.db".
         """
+        self.db = None
         self.file = Path(path, fn)
-        if not self.file.exists():
-            self.db = self.create(dbFile)
-        else:
+        if self.file.exists():
             self.db = self.load()
 
     def load(self):
@@ -57,7 +56,7 @@ class Database():
         try:
             conn = sqlite3.connect(self.file)
             return conn
-        except Error as e:
+        except sqlite3.Error as e:
             print(f"Failed to load database file: \n {e}")
             return None
 
@@ -72,28 +71,36 @@ class Database():
             None: None (when unable to connect/load database)
         """
 
-        print("Creating new database...")
         try:
-            if (conn:= self.load(self.file)) is not None:
+            if (conn:= self.load()) is not None:
 
                 # Create tables
                 cur = conn.cursor()
+                
                 for schema in schemas:
                     try:
                         cur.execute(schema)
-                        self.save()
 
-                    except Error as e:
-                        print(f"TableCreationFailed :: {e}\n{schema}")
-
+                    except ValueError as e:
+                        print("create() function takes an arbitrary number of arguments; unpack data collections before passing in.")
+                        return -1
+                    except sqlite3.Error as e:
+                        print(f"TableCreationFailed :: {e}.\nSchema: {schema}\n")
+                        return -1                        
 
                 print("...creation complete.")
-                return conn
+                self.db = conn
+                self.save()
+                
+                return 0
+                
             else:
-                raise ManagementDatabaseError(f"Failed to connect and create database {self.file}")
+                raise DatabaseError(f"Failed to connect and create database {self.file}")
 
         except DatabaseError as e:
             print(f"{e}")
+            self.close()
+            return -1
             
     def insert(self, query=None, data=None):
         """ Insert the data into the desired table. Query example:
@@ -113,22 +120,31 @@ class Database():
 
         try:
             msg = "Cannot insert into table without"
-            if query is None:
-                raise DatabaseTableInsertError(msg, "query.")
-            elif data is None:
-                raise DatabaseTableInsertError(msg, "data.")
+            if query is None or data is None:
+                raise DatabaseTableInsertError(msg, ("query." if query is None else "data."))
 
+            # insert into table
+            cur = self.db.cursor()
+            cur.execute(query, data)
+            self.save()
 
+        except ValueError as e:
+            print(e)
+            return -1
         except DatabaseTableInsertError as e:
             print(e)
-            return 1
+            return -1
+        except sqlite3.Error as e:
+            print(e)
+            return -1
+        else:
+            return 0
 
+    def extract(self, query=None):
         # insert into table
         cur = self.db.cursor()
         cur.execute(query, data)
         self.save()
-
-        return 0
 
     def close(self):
         """ Close the database """
@@ -141,23 +157,33 @@ class Database():
     
     def cursor(self):
         return self.db.cursor()
+        
+    def delete(self):
+        try:
+            self.close()
+            self.file.unlink()
+        except FileNotFoundError():
+            print("Can't delete what can't be found.")
+        finally:
+            return self.file.exists()
 
 
-class ManagementDB(Database):
+# Children database classes
+class ManagementDB(_Database):
     """ Mangaement database interface """
 
     def __init__(self):
         super().__init__(fn="management.db")
 
     def create(self):
-        super().create(schemas.Management())
+        super().create(*schemas.Management())
 
 
-class WorkSpaceDB(Database):
+class WorkSpaceDB(_Database):
     """ Workspace database interface """
 
     def __init__(self, fn="workspace.db"):
         super().__init__(fn=fn)
     
     def create(self):
-        super().create(schemas.WorkSpace())
+        super().create(*schemas.WorkSpace())
