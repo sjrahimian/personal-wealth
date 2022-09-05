@@ -29,6 +29,11 @@ class DatabaseTableInsertError(DatabaseError):
     """Raised when the not able to insert into table"""
     pass
 
+
+class DatabaseExtractError(DatabaseError):
+    """Raised when the not able to extract from table"""
+    pass
+
 # Parent database class
 class _Database():
     """ Interface to SQLite3 database; defines basic methods needed. """
@@ -139,12 +144,23 @@ class _Database():
             return -1
         else:
             return 0
+    
+    def fetchall(self, query):
+        try:
+            cur = self.db.cursor()
+            cur.execute(query)
+            if not (results:= cur.fetchall()):
+                raise DatabaseExtractError("\nNo data! Please make a new entry.\n")
 
-    def extract(self, query=None):
-        # insert into table
-        cur = self.db.cursor()
-        cur.execute(query, data)
-        self.save()
+            return results
+
+        except DatabaseExtractError as e:
+            print(e)
+            return -1
+        except sqlite3.OperationalError as e:
+            print(e)
+            return -1
+        
 
     def close(self):
         """ Close the database """

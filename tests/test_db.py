@@ -1,6 +1,6 @@
 
 from datetime import datetime
-
+import json
 
 from bin.database import database
 
@@ -21,7 +21,7 @@ def test_database():
     t2 = """
         CREATE TABLE IF NOT EXISTS "table02" (
             "col_A"	TEXT NOT NULL UNIQUE,
-            "col_B"	BLOB NOT NULL,
+            "col_B"	TEXT NOT NULL,
             "col_C"	INTEGER NOT NULL,
             PRIMARY KEY("col_A")
         )
@@ -37,7 +37,6 @@ def test_database_insert_pass():
 
     assert db.insert(query, data) == 0
 
-
 def test_database_insert_fail_incorrectQ():
     query = 'INSERT INTO table01 (col_1, col2) VALUES (?,?);'
     data = {"foo", '01-01'}
@@ -52,10 +51,40 @@ def test_database_insert_fail_incorrectD():
 
 def test_database_insert_fail_missing():
     query = 'INSERT INTO table01 (col_1, col_2) VALUES (?,?);'
-
     assert db.insert(query) == -1
+
+def test_database_extract_all():
+    helper_insertMany()
+    query = "SELECT * FROM table01;"
+    results = db.fetchall(query)
+
+    assert results == [('foo', '09-04')]
+
+def test_database_extract_all_fail_noQ():
+    # helper_insertMany()
+    query = "SELECT * FROM table0;"
+    results = db.fetchall(query)
+    print(results)
+
+    assert results == -1
 
 def test_database_delete():
     print(db.file)
     assert db.delete() == False
-    
+
+
+### Helper functions
+def helper_insertMany():
+    jsonSample = {"GlossSee": "markup", "Lorem": ['ipsum', 'haha'], "foo": {"bar":"foobar", "foo": "foofoo"}}
+
+    query = 'INSERT INTO table02 (col_A, col_B, col_C) VALUES (?,?,?);'
+    data = [("foo", "cat\n1231", datetime.now()),
+            ("bar", 9876, datetime.now()),
+            ("foofoo", json.dumps(jsonSample), datetime.now()),
+            ("foobar", "\t\tchedder\n\n\t\tcheese\n\n", datetime.now())]
+
+    for d in data:
+        x = db.insert(query, d)
+        print(x)
+
+    print("fin")
