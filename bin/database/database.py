@@ -29,7 +29,7 @@ class DatabaseTableInsertError(DatabaseError):
     """Raised when the not able to insert into table"""
     pass
 
-class DatabaseTableEmptyException(DatabaseError):
+class DatabaseFetchEmpty(DatabaseError):
     """Raised when the not able to extract from table"""
     pass
 
@@ -145,15 +145,30 @@ class _Database():
             return 0
     
     def fetchall(self, query):
+        """ Retrieve the data from the desired database using the provided query
+
+        Args:
+            query (str, required): The query to fetch the data.
+
+        Raises:
+            DatabaseFetchEmpty: no data results are returned or table is empty
+            sqlite3.OperationalError: catches any error with SQLite such as query syntax errors
+
+        Returns:
+            int: failed to execute query
+            None: when no data was retrieved
+            results: data fetched from database
+        """
+
         try:
             cur = self.db.cursor()
             cur.execute(query)
             if not (results:= cur.fetchall()):
-                raise DatabaseTableEmptyException("\nNo data! Please make a new entry.\n")
+                raise DatabaseFetchEmpty("\nNo data retrieved.\n")
 
             return results
         
-        except DatabaseTableEmptyException as e:
+        except DatabaseFetchEmpty as e:
             print(e)
             return None
         except sqlite3.OperationalError as e:
