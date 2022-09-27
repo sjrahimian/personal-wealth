@@ -29,8 +29,7 @@ class DatabaseTableInsertError(DatabaseError):
     """Raised when the not able to insert into table"""
     pass
 
-
-class DatabaseExtractError(DatabaseError):
+class DatabaseTableEmptyException(DatabaseError):
     """Raised when the not able to extract from table"""
     pass
 
@@ -150,13 +149,13 @@ class _Database():
             cur = self.db.cursor()
             cur.execute(query)
             if not (results:= cur.fetchall()):
-                raise DatabaseExtractError("\nNo data! Please make a new entry.\n")
+                raise DatabaseTableEmptyException("\nNo data! Please make a new entry.\n")
 
             return results
-
-        except DatabaseExtractError as e:
+        
+        except DatabaseTableEmptyException as e:
             print(e)
-            return -1
+            return None
         except sqlite3.OperationalError as e:
             print(e)
             return -1
@@ -195,7 +194,7 @@ class ManagementDB(_Database):
         super().create(*schemas.Management())
 
 
-class WorkSpaceDB(_Database):
+class WorkspaceDB(_Database):
     """ Workspace database interface """
 
     def __init__(self, fn="workspace.db"):

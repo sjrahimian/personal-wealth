@@ -53,16 +53,22 @@ def test_database_insert_fail_missing():
     query = 'INSERT INTO table01 (col_1, col_2) VALUES (?,?);'
     assert db.insert(query) == -1
 
+def test_database_extract_all_empty_table():
+    query = "SELECT * FROM table02;"
+    results = db.fetchall(query)
+
+    assert results == None
+
 def test_database_extract_all():
     helper_insertMany()
     query = "SELECT * FROM table01;"
     results = db.fetchall(query)
 
-    assert results == [('foo', '09-04')]
+    assert results == [('foo',  datetime.now().strftime("%m-%d"))]
 
-def test_database_extract_all_fail_noQ():
+def test_database_extract_all_fail_syntaxError():
     # helper_insertMany()
-    query = "SELECT * FROM table0;"
+    query = "SELECT FROM table01;"
     results = db.fetchall(query)
     print(results)
 
@@ -72,10 +78,19 @@ def test_database_delete():
     print(db.file)
     assert db.delete() == False
 
+def test_ManagementDB():
+    db = database.ManagementDB()
+    db.create
+    assert db.delete() == False
+
+def test_WorkspaceDB():
+    db = database.WorkspaceDB()
+    db.create
+    assert db.delete() == False
 
 ### Helper functions
 def helper_insertMany():
-    jsonSample = {"GlossSee": "markup", "Lorem": ['ipsum', 'haha'], "foo": {"bar":"foobar", "foo": "foofoo"}}
+    jsonSample = {"yaml": "markup", "Lorem": ['ipsum', 'dolor'], "foo": {"bar":"barbar", "foo": "foofoo"}}
 
     query = 'INSERT INTO table02 (col_A, col_B, col_C) VALUES (?,?,?);'
     data = [("foo", "cat\n1231", datetime.now()),
