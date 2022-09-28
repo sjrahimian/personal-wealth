@@ -80,12 +80,12 @@ def test_database_delete():
 
 def test_ManagementDB():
     db = database.ManagementDB()
-    db.create
+    db.create()
     assert db.delete() == False
 
 def test_WorkspaceDB():
     db = database.WorkspaceDB()
-    db.create
+    db.create()
     assert db.delete() == False
 
 ### Helper functions
