@@ -31,16 +31,6 @@ class Management():
 
 
 class WorkSpace():
-    setting = """
-        CREATE TABLE "setting" (
-            "workspace_id"	TEXT NOT NULL UNIQUE,
-            "country"	TEXT NOT NULL DEFAULT 'canada',
-            "currency"	TEXT NOT NULL DEFAULT 'CAD',
-            "fiscal_start"	INTEGER NOT NULL DEFAULT '01-01',
-            PRIMARY KEY("workspace_id")
-        ) WITHOUT ROWID
-    """
-
     income = """
         CREATE TABLE "Income" (
             "uiid"	TEXT NOT NULL UNIQUE,
@@ -111,11 +101,18 @@ class WorkSpace():
             PRIMARY KEY("urid")
         ) WITHOUT ROWID
     """
-    
-    expenditure = """
+
+    setting = """
+        CREATE TABLE "setting" (
+            "workspace_id"	TEXT NOT NULL UNIQUE,
+            "country"	TEXT NOT NULL DEFAULT 'canada',
+            "currency"	TEXT NOT NULL DEFAULT 'CAD',
+            "fiscal_start"	INTEGER NOT NULL DEFAULT '01-01',
+            PRIMARY KEY("workspace_id")
+        ) WITHOUT ROWID
     """
 
-    all_tables = { setting, income, expenditure, returns, properties, mortgage }
+    all_tables = { income, expenditure, returns, properties, mortgage, setting }
 
     def __init__(self):
         return all_tables
